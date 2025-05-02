@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>育休プラン作成フォーム</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .example {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 4px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>育休計画プロンプト作成フォーム</h1>
+
+    <div class="description-box" style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #007BFF;">
+        <h2>説明文</h2>
+        <p>このフォームは育休計画プロンプト作成に必要な情報を入力するためのものです。</p>
+        <p>すべての質問に回答すると、あなた専用のプロンプト(ChatGPTへの指示文)が自動生成されます。</p>
+        <p><strong>※フォーム送信後、自動でChatGPTに送信されることはありません。</strong><br>
+           生成されたプロンプトをコピーして、手動でChatGPTに貼り付けてください。</p>
+        <p><strong>手順</strong></p>
+        <p>妻が働いている場合は１から、妻が専業主婦の場合は２から始めてください。<br>
+        （妻本人の産前産後休業は、本人が働いている場合のみ取得できます。）</p>
+        <ol>
+            <li><a href="https://www.bosei-navi.mhlw.go.jp/leave/" target="_blank" style="font-weight:bold; color:#007BFF;">厚労省のサイト</a>で産前産後休業日を算出する（育児休業開始日は空欄でOK）</li>
+            <li>フォームの各項目に回答する（産前産後休業日は算出したものを記入）</li>
+            <li>生成されたプロンプトをコピーする</li>
+            <li><a href="https://chat.openai.com/" target="_blank" style="font-weight:bold; color:#007BFF;">ChatGPT</a> を立ち上げて貼り付ける</li>
+        </ol>
+        <p><strong>注意：</strong>自由記述欄に機密情報や個人情報は入力しないようにしましょう。</p>
+    </div>
+
+    <form method="POST">
+
+    <!-- 基本情報 -->
+    <h2>📝 基本情報</h2>
+
+    <div class="form-group">
+        <label>出産予定日</label>
+        <input type="date" name="q1" id="due_date" required>
+    </div>
+
+    <div class="form-group">
+        <label>妊娠中のお子さんは多胎児ですか？</label><br>
+        <input type="radio" name="q8" value="はい" id="multiple_yes" required> はい
+        <input type="radio" name="q8" value="いいえ" id="multiple_no"> いいえ
+    </div>
+
+    <div class="form-group">
+        <p>以下、産前産後休業期間は厚労省サイトで計算したものを入力<strong>（妻が専業主婦の場合は空欄）</strong></p>
+        <button type="button" class="btn secondary-btn" onclick="calculateDates()">日付を自動計算</button>
+    </div>
+
+    <div class="form-group">
+        <label>産前休業開始日（予定日の42日前、多胎児は98日前）</label>
+        <input type="date" name="q2" id="pre_start">
+    </div>
+    
+    <div class="form-group">
+        <label>産前休業終了日（出産予定日と同日）</label>
+        <input type="date" name="q3" id="pre_end">
+    </div>
+    
+    <div class="form-group">
+        <label>産後休業開始日（予定日の翌日）</label>
+        <input type="date" name="q4" id="post_start">
+    </div>
+    
+    <div class="form-group">
+        <label>産後休業終了日（予定日から8週間後）</label>
+        <input type="date" name="q5" id="post_end">
+    </div>    
+
+    <div class="form-group">
+        <label>妻の育休取得希望期間</label>
+        <div class="example">例：産前休業から翌年4月の慣らし保育終了まで</div>
+        <textarea name="q6"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>夫の育休取得希望期間</label>
+        <div class="example">例：予定日を含む2ヶ月＋3月から慣らし保育終了まで1ヶ月</div>
+        <textarea name="q7"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>お子さんは第一子ですか？</label><br>
+        <label><input type="radio" name="q9" value="はい" required> はい</label>
+        <label><input type="radio" name="q9" value="いいえ"> いいえ</label>
+    </div>
+
+    <div class="form-group">
+        <label>（第二子以降の場合）上の子どもの情報</label>
+        <div class="example">例：人数・年齢・通園状況</div>
+        <textarea name="q10"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>保育園/幼稚園の入園希望時期（複数選択可）</label><br>
+        <label><input type="checkbox" name="q11" value="① 4月入園"> ① 4月入園</label><br>
+        <label><input type="checkbox" name="q11" value="② 3歳から幼稚園"> ② 3歳から幼稚園</label><br>
+        <label><input type="checkbox" name="q11" value="③ その他"> ③ その他</label><br>
+        <textarea name="q11_other" placeholder="その他の場合は具体的に記入"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>保育園の入園難易度（任意）</label><br>
+        <label><input type="radio" name="q12" value="高"> 高</label>
+        <label><input type="radio" name="q12" value="中"> 中</label>
+        <label><input type="radio" name="q12" value="低"> 低</label>
+    </div>
+
+    <div class="form-group">
+        <label>家族の別居・単身赴任の予定</label><br>
+        <label><input type="radio" name="q13" value="はい" required> はい</label>
+        <label><input type="radio" name="q13" value="いいえ"> いいえ</label>
+        <label><input type="radio" name="q13" value="未定"> 未定</label>
+    </div>
+
+    <div class="form-group">
+        <label>同居家族</label>
+        <div class="example">例：夫、妻</div>
+        <textarea name="q14" required></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>親族からの育児・家事サポートの有無・頻度</label>
+        <div class="example">例：実家の母から産後不定期サポートあり</div>
+        <textarea name="q15" required></textarea>
+    </div>
+
+    <!-- 職場・仕事の状況 -->
+    <h2>💼 仕事・職場の状況</h2>
+
+    <div class="form-group">
+        <label>夫の就業状況（雇用形態、正社員/派遣社員/自営業/パート/専業主夫/学生など）</label>
+        <div class="example">例：正社員 フルタイム</div>
+        <textarea name="q16" required></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>妻の就業状況（雇用形態、正社員/派遣社員/自営業/パート/専業主婦/学生など）</label>
+        <div class="example">例：正社員 フルタイム</div>
+        <textarea name="q17" required></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>夫の職場に独自の産休・育休制度はありますか？</label>
+        <div class="example">例：有給育休1ヶ月あり／なし</div>
+        <textarea name="q18"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>妻の職場に独自の産休・育休制度はありますか？</label>
+        <div class="example">例：有給育休1ヶ月あり／なし</div>
+        <textarea name="q19"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>夫の職場での育休取得への理解度</label><br>
+        <label><input type="radio" name="q20" value="高" required> 高</label>
+        <label><input type="radio" name="q20" value="中"> 中</label>
+        <label><input type="radio" name="q20" value="低"> 低</label>
+    </div>
+
+    <div class="form-group">
+        <label>妻の職場での育休取得への理解度</label><br>
+        <label><input type="radio" name="q21" value="高" required> 高</label>
+        <label><input type="radio" name="q21" value="中"> 中</label>
+        <label><input type="radio" name="q21" value="低"> 低</label>
+    </div>
+
+    <div class="form-group">
+        <label>夫の育休後の働き方</label>
+        <div class="example">例：フルタイム・育児時短・フレックス勤務等</div>
+        <textarea name="q22"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>妻の育休後の働き方</label>
+        <div class="example">例：フルタイム・育児時短・育児時間・週2日在宅勤務等</div>
+        <textarea name="q23"></textarea>
+    </div>
+
+    <!-- 希望と不安 -->
+    <h2>🌱 希望と不安</h2>
+
+    <div class="form-group">
+        <label>育休取得で重視したいこと（複数選択可）</label><br>
+        <label><input type="checkbox" name="q26" value="① 出産直後に夫婦で育児したい"> ① 出産直後に夫婦で育児したい</label><br>
+        <label><input type="checkbox" name="q26" value="② 妻の体調回復を優先したい"> ② 妻の体調回復を優先したい</label><br>
+        <label><input type="checkbox" name="q26" value="③ 家族の時間を確保したい"> ③ 家族の時間を確保したい</label><br>
+        <label><input type="checkbox" name="q26" value="④ キャリアとライフを両立したい"> ④ キャリアとライフを両立したい</label><br>
+        <label><input type="checkbox" name="q26" value="⑤ 経済的なロスを最小限に抑えたい"> ⑤ 経済的なロスを最小限に抑えたい</label><br>
+        <label><input type="checkbox" name="q26" value="⑥ その他"> ⑥ その他</label><br>
+        <textarea name="q26_other" placeholder="その他の場合は具体的に記入（任意）"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>家事代行・ベビーシッター等の利用意向（複数選択可）</label><br>
+        <label><input type="checkbox" name="q25" value="① 家事代行"> ① 家事代行</label><br>
+        <label><input type="checkbox" name="q25" value="② 産後ヘルパー"> ② 産後ヘルパー</label><br>
+        <label><input type="checkbox" name="q25" value="③ ベビーシッター"> ③ ベビーシッター</label><br>
+        <label><input type="checkbox" name="q25" value="④ 自分たちで対応したい"> ④ 自分たちで対応したい</label><br>
+        <label><input type="checkbox" name="q25" value="⑤ その他"> ⑤ その他</label><br>
+        <textarea name="q25_other" placeholder="その他の場合は具体的に記入（任意）"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>5年後のライフキャリアの希望（複数選択可）</label><br>
+        <label><input type="checkbox" name="q26" value="① 子どもが小さいうちは育児を最優先にしたい"> ① 子どもが小さいうちは育児を最優先にしたい</label><br>
+        <label><input type="checkbox" name="q26" value="② 育児も仕事も同じぐらい大切にしたい"> ② 育児も仕事も同じぐらい大切にしたい</label><br>
+        <label><input type="checkbox" name="q26" value="③ 育児を優先しつつ仕事もできるだけ頑張っていきたい"> ③ 育児を優先しつつ仕事もできるだけ頑張っていきたい</label><br>
+        <label><input type="checkbox" name="q26" value="④ 育児は大切にしつつ仕事での成長も視野に入れたい"> ④ 育児は大切にしつつ仕事での成長も視野に入れたい</label><br>
+        <label><input type="checkbox" name="q26" value="⑤ 責任ある仕事に挑戦したい"> ⑤ 責任ある仕事に挑戦したい</label><br>
+        <label><input type="checkbox" name="q26" value="⑥ パートナーと補完し合って両立したい"> ⑥ パートナーと補完し合って両立したい</label><br>
+        <label><input type="checkbox" name="q26" value="⑦ パートナーと自分の希望を叶え合うよう工夫しながらやりたい"> ⑦ パートナーと自分の希望を叶え合うよう工夫しながらやりたい</label><br>
+        <label><input type="checkbox" name="q26" value="⑧ その他"> ⑧ その他</label><br>
+        <textarea name="q26_other" placeholder="その他の場合は具体的に記入してください（任意）"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>今、不安に思っていること・知りたいこと</label>
+        <div class="example">例：親族が遠方で夫婦だけで育児できるか不安、仕事復帰後の働き方が不安</div>
+        <textarea name="q27"></textarea>
+    </div>
+
+    <button type="submit" class="btn primary-btn">プロンプトを生成する</button>
+
+    </form>
+</div>
+
+<!-- 自動計算JS -->
+<script>
+    function calculateDates() {
+      const dueDate = document.getElementById("due_date").value;
+      const isMultiple = document.getElementById("multiple_yes").checked;
+  
+      if (!dueDate) {
+        alert("出産予定日を入力してください");
+        return;
+      }
+  
+      fetch("/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ due_date: dueDate, is_multiple: isMultiple })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("pre_start").value = data["産前休業開始日"];
+        document.getElementById("pre_end").value = data["産前休業終了日"];
+        document.getElementById("post_start").value = data["産後休業開始日"];
+        document.getElementById("post_end").value = data["産後休業終了日"];
+      });
+    }
+  </script>
+
+</body>
+</html>

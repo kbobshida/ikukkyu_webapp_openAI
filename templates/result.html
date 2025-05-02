@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>育休プロンプト結果</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+
+    <!-- ステップ1 -->
+    <div class="section">
+        <h2>ステップ1：育休プラン提案</h2>
+        <button type="button" class="btn secondary-btn" onclick="copyToClipboard('promptText1')">プロンプトをコピー</button>
+        <textarea id="promptText1" rows="30">{{ step1_prompt }}</textarea>
+
+        <h3>ChatGPTによる提案</h3>
+        <div class="response-box">
+            {{ step1_response | markdown }}
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- ステップ2 -->
+    <div class="section">
+        <h2>ステップ2：選んだプランの詳細を依頼</h2>
+        <form method="POST" action="/followup">
+            <label for="selected_plan">選んだプランを選択してください：</label><br>
+            <select name="selected_plan" id="selected_plan" required>
+                <option value="">-- プランを選んでください --</option>
+                <option value="①">① 私たちの希望を最大限反映した育休取得プラン</option>
+                <option value="②">② 給付金・社会保険料の免除等、経済的な面を最大限活用したプラン</option>
+                <option value="③">③ 希望を反映しつつ夫と妻の協業体制が強化できるプラン</option>
+            </select>
+            <button type="submit" class="copy-btn">このプランについて詳しく聞く</button>
+        </form>
+
+        {% if step2_prompt %}
+            <h4>送信したプロンプト</h4>
+            <button class="copy-btn" onclick="copyToClipboard('promptText2')">プロンプトをコピー</button>
+            <textarea id="promptText2" rows="30">{{ step2_prompt }}</textarea>
+
+            <h3>ChatGPTの提案</h3>
+            <div class="response-box">{{ step2_response | markdown }}</div>
+        {% else %}
+            <p>下記フォームから、3つのプランのうち気になるプランを選んで詳細を依頼できます。</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+function copyToClipboard(id) {
+    const textarea = document.getElementById(id);
+    if (!textarea) {
+        alert("コピー対象が見つかりません");
+        return;
+    }
+    textarea.select();
+    textarea.setSelectionRange(0, 99999); // モバイル対応
+    document.execCommand("copy");
+    alert("プロンプトをコピーしました！");
+}
+</script>
+</body>
+</html>
