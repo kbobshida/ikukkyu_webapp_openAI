@@ -1,0 +1,205 @@
+/* ベース全体 */
+body {
+    background-color: #f8f9fb;
+    font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+/* メインフォームコンテナ */
+.container {
+    max-width: 720px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 40px 32px;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* タイトル */
+h1 {
+    text-align: center;
+    margin-bottom: 32px;
+    font-size: 26px;
+    color: #222;
+    font-weight: 600;
+}
+
+/* 各項目ブロック */
+.form-group {
+    margin-bottom: 24px;
+}
+
+/* ラベル（最初の1行目） */
+.form-group > label:first-child {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #2c2c2c;
+    font-size: 15px;
+}
+
+/* ラジオやチェックボックス用のラベル */
+label {
+    display: inline-block;
+    margin-bottom: 6px;
+    margin-right: 14px;
+    font-weight: 400;
+    font-size: 14px;
+    color: #444;
+}
+
+/* 入力・選択フォーム */
+input[type="text"],
+input[type="date"],
+textarea,
+select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background-color: #fafafa;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #007BFF;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    background-color: #fff;
+}
+
+/* テキストエリア */
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ラジオ・チェックボックス */
+input[type="radio"],
+input[type="checkbox"] {
+    margin-right: 6px;
+    accent-color: #007BFF;
+}
+
+/* ===== ボタン統一スタイル ===== */
+
+/* 共通ボタンスタイル */
+button,
+.btn {
+    display: inline-block;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+}
+
+/* メイン操作ボタン */
+.primary-btn {
+    background-color: #007BFF;
+    color: white;
+    width: 100%;
+    margin-top: 28px;
+}
+
+.primary-btn:hover {
+    background-color: #005ecf;
+}
+
+/* サブ操作ボタン（コピー、日付計算など） */
+.secondary-btn {
+    background-color: #e9f3ff;
+    color: #007BFF;
+    border: 1px solid #007BFF;
+    width: auto;
+    margin-top: 6px;
+}
+
+.secondary-btn:hover {
+    background-color: #007BFF;
+    color: white;
+}
+
+/* プロンプト用テキストエリア */
+#promptText {
+    width: 100%;
+    font-family: 'Noto Sans JP', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    resize: vertical;
+    white-space: pre-wrap;
+}
+
+
+/* ChatGPTリンクボックス */
+.chatgpt-link-box {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f1f8ff;
+    border-left: 4px solid #00a67e;
+}
+
+.response-box {
+    border: 2px solid #007BFF;           /* 枠を青で少し太く */
+    background-color: #f9fcff;           /* 薄い青グレー背景 */
+    padding: 24px;
+    border-radius: 12px;
+    margin-top: 24px;
+    color: #000;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+/* 表内の装飾 */
+.response-box table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1em;
+}
+
+.response-box th,
+.response-box td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    color: #000;
+}
+
+.response-box th {
+    background-color: #eef5ff;
+    font-weight: 600;
+}
+
+
+/* モバイル対応 */
+@media (max-width: 600px) {
+    .container {
+        padding: 24px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
