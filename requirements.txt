@@ -1,5 +1,7 @@
 flask
 flask-session
+flask-sqlalchemy
 openai
 python-dotenv
 markdown
+mysql-connector-python  # ← MySQLを使っている場合（PostgreSQLなら変更）
