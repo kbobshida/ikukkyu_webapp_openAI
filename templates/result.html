@@ -51,18 +51,21 @@
 
 </div>
 
-<script>
-function copyToClipboard(id) {
-    const textarea = document.getElementById(id);
-    if (!textarea) {
-        alert("コピー対象が見つかりません");
-        return;
-    }
-    textarea.select();
-    textarea.setSelectionRange(0, 99999); // モバイル対応
-    document.execCommand("copy");
-    alert("プロンプトをコピーしました！");
-}
+
+<!-- containerの外にローディングオーバーレイを追加 -->
+<div id="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+      <svg viewBox="0 0 100 100">
+        <circle r="40" cy="50" cx="50"></circle>
+      </svg>
+      <p><strong>プロンプトを生成中です…</strong></p>
+    </div>
+</div>
+  
+  <!-- JS読み込み -->
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  
 </script>
 </body>
 </html>
+
