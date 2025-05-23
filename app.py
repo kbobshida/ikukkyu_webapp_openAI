@@ -8,16 +8,27 @@ from dotenv import load_dotenv
 from markdown import markdown
 from markupsafe import Markup
 from datetime import datetime, timedelta
+from models import db, ResponseRecord
 
+# 環境変数とOpenAI初期化
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+# Flask設定
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 app.config['SESSION_TYPE'] = 'filesystem'
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///responses.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+# 拡張機能初期化
+db.init_app(app)
 Session(app)
 
+with app.app_context():
+    db.create_all()
+
+# Markdownフィルター
 @app.template_filter('markdown')
 def markdown_filter(text):
     return Markup(markdown(text, extensions=["extra", "tables", "fenced_code"]))
@@ -27,12 +38,10 @@ def form():
     if request.method == "POST":
         responses = {}
 
-        # q1〜q23（単一回答・テキスト）
         for i in range(1, 24):
             key = f"q{i}"
             responses[key] = request.form.get(key, "")
 
-        # チェックボックス＋その他対応（q11, q25, q26）
         def handle_checkboxes(base_key, other_key):
             selected = request.form.getlist(base_key)
             other_val = request.form.get(other_key, "").strip()
@@ -43,7 +52,6 @@ def form():
         responses["q11"] = handle_checkboxes("q11", "q11_other")
         responses["q25"] = handle_checkboxes("q25", "q25_other")
         responses["q26"] = handle_checkboxes("q26", "q26_other")
-
         responses["q24"] = request.form.get("q24", "")
         responses["q27"] = request.form.get("q27", "")
 
@@ -61,10 +69,24 @@ def form():
         )
         ai_response = response.choices[0].message.content.strip()
 
-        # MarkdownをHTMLに変換して保存
         session["step1_prompt"] = prompt_text
         session["step1_response"] = Markup(markdown(ai_response, extensions=["extra", "tables", "fenced_code"]))
-        session["step1_response_plain"] = ai_response  # プレーンテキストも保存
+        session["step1_response_plain"] = ai_response
+
+        record = ResponseRecord(
+            q1=responses["q1"], q2=responses["q2"], q3=responses["q3"], q4=responses["q4"],
+            q5=responses["q5"], q6=responses["q6"], q7=responses["q7"], q8=responses["q8"],
+            q9=responses["q9"], q10=responses["q10"], q11=responses["q11"], q12=responses["q12"],
+            q13=responses["q13"], q14=responses["q14"], q15=responses["q15"], q16=responses["q16"],
+            q17=responses["q17"], q18=responses["q18"], q19=responses["q19"], q20=responses["q20"],
+            q21=responses["q21"], q22=responses["q22"], q23=responses["q23"], q24=responses["q24"],
+            q25=responses["q25"], q26=responses["q26"], q27=responses["q27"],
+            prompt_text=prompt_text,
+            ai_response=ai_response
+        )
+        db.session.add(record)
+        db.session.commit()
+        session["record_id"] = record.id
 
         return render_template(
             "result.html",
@@ -79,7 +101,6 @@ def form():
 @app.route("/followup", methods=["POST"])
 def followup():
     selected_plan = request.form.get("selected_plan", "①")
-
     followup_prompt = render_template("followup_template.txt", selected_plan=selected_plan)
     system_content = render_template("system_template.txt")
 
@@ -96,6 +117,15 @@ def followup():
     )
     followup_response = response.choices[0].message.content.strip()
 
+    record_id = session.get("record_id")
+    if record_id:
+        record = ResponseRecord.query.get(record_id)
+        if record:
+            record.selected_plan = selected_plan
+            record.followup_prompt = followup_prompt
+            record.followup_response = followup_response
+            db.session.commit()
+
     return render_template(
         "result.html",
         step1_prompt=session.get("step1_prompt"),
@@ -104,7 +134,6 @@ def followup():
         step2_response=Markup(markdown(followup_response, extensions=["extra", "tables", "fenced_code"])),
     )
 
-# 日付自動計算用のエンドポイント（JavaScriptから呼ばれる）
 @app.route("/calculate", methods=["POST"])
 def calculate():
     data = request.get_json()
@@ -129,6 +158,5 @@ def calculate():
         "産後休業終了日": post_end.strftime("%Y-%m-%d")
     })
 
-
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=4000)
