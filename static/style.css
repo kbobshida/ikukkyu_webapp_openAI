@@ -1,3 +1,4 @@
+
 /* ベース全体 */
 body {
     background-color: #f8f9fb;
@@ -203,3 +204,67 @@ button,
         padding: 10px;
     }
 }
+
+/* オーバーレイ全体を .container 外に配置 */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(4px);
+    background-color: rgba(255, 255, 255, 0.7); /* 白くぼかす */
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  
+  .loading-spinner {
+    display: flex;             /* ← 要素をフレックス化 */
+    flex-direction: column;   /* ← 上下に並べる */
+    align-items: center;      /* ← 横方向中央 */
+    justify-content: center;  /* ← 縦方向中央（保険） */
+    text-align: center;       /* ← テキスト中央寄せ */
+    }
+
+
+  /* スピナー */
+  #loading-overlay svg {
+    width: 3.25em;
+    transform-origin: center;
+    animation: rotate4 2s linear infinite;
+    margin-bottom: 1em;
+  }
+  
+  #loading-overlay circle {
+    fill: none;
+    stroke: hsl(214, 97%, 59%);
+    stroke-width: 2;
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    animation: dash4 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes rotate4 {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes dash4 {
+    0% {
+      stroke-dasharray: 1, 200;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 90, 200;
+      stroke-dashoffset: -35px;
+    }
+    100% {
+      stroke-dashoffset: -125px;
+    }
+  }
+  
