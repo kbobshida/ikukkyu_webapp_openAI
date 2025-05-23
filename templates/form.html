@@ -238,31 +238,19 @@
     </form>
 </div>
 
-<!-- 自動計算JS -->
-<script>
-    function calculateDates() {
-      const dueDate = document.getElementById("due_date").value;
-      const isMultiple = document.getElementById("multiple_yes").checked;
+<!-- ローディングオーバーレイ（containerの外に設置） -->
+<div id="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+      <svg viewBox="0 0 100 100">
+        <circle r="40" cy="50" cx="50"></circle>
+      </svg>
+      <p><strong>プロンプトを生成中です…</strong></p>
+    </div>
+</div>  
   
-      if (!dueDate) {
-        alert("出産予定日を入力してください");
-        return;
-      }
-  
-      fetch("/calculate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ due_date: dueDate, is_multiple: isMultiple })
-      })
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("pre_start").value = data["産前休業開始日"];
-        document.getElementById("pre_end").value = data["産前休業終了日"];
-        document.getElementById("post_start").value = data["産後休業開始日"];
-        document.getElementById("post_end").value = data["産後休業終了日"];
-      });
-    }
-  </script>
 
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+  
+  
 </body>
 </html>
